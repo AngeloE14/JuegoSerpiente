@@ -8,8 +8,6 @@ DERECHA: Tuple[int, int] = (1, 0)
 
 
 class Serpiente:
-	
-
 	def __init__(self, inicio: Tuple[int, int]) -> None:
 		self.cuerpo: List[Tuple[int, int]] = [inicio]
 		self.direccion: Tuple[int, int] = DERECHA
