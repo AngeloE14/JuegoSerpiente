@@ -9,6 +9,7 @@ class GestorAudio:
 
     def __init__(self):
         self.sonido_comer = None
+        self.sonido_perder = None
         self.inicializado = False
         self._inicializar()
         self._cargar_audios()
@@ -29,6 +30,7 @@ class GestorAudio:
             return
         # Cargar efecto de sonido
         self.cargar_efecto("assets/audio/efecto.wav", "comer")
+        self.cargar_efecto("assets/audio/perdio.wav", "perder")
         # Cargar y reproducir música de fondo
         self.cargar_musica("assets/audio/soundtrack.wav", "música")
 
@@ -51,6 +53,8 @@ class GestorAudio:
             try:
                 if nombre == "comer":
                     self.sonido_comer = pygame.mixer.Sound(ruta_completa)
+                elif nombre == "perder":
+                    self.sonido_perder = pygame.mixer.Sound(ruta_completa)
                 print(f"  ✓ {nombre.capitalize()} cargado: {ruta}")
                 return True
             except pygame.error as e:
@@ -100,6 +104,9 @@ class GestorAudio:
         try:
             if efecto == "comer" and self.sonido_comer:
                 self.sonido_comer.play()
+                return True
+            if efecto == "perder" and self.sonido_perder:
+                self.sonido_perder.play()
                 return True
             else:
                 return False

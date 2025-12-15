@@ -1,4 +1,4 @@
-from ventana import principal
+from menu import inicio_aplicacion
 
 if __name__ == "__main__":
-    principal()
+    inicio_aplicacion()
