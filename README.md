@@ -1,2 +1,11 @@
-# JuegoSerpiente🐍🍎
-Juego de la serpiente usando pygame en python
+# Juego Serpiente 🐍🍎
+Snake en Python con Pygame.
+
+## Requisitos
+- Python 3.10+
+- Pygame 2.6+
+
+## Controles
+- Flechas: mover
+- Esc (en juego): volver al menú
+- Menú: Música ON/OFF, Salir
