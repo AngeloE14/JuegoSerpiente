@@ -1,4 +1,3 @@
-import sys
 import os
 import pygame
 from audio import GestorAudio
@@ -6,18 +5,22 @@ from ventana import principal
 from cursores import GestorCursores
 
 ANCHO, ALTO = 800, 400
-TAMANO_CELDA = 20
 
 
 def cargar_imagen(ruta: str, ancho: int, alto: int):
+    """Carga y escala una imagen ya con convert/convert_alpha para blits rápidos."""
     ruta_completa = os.path.join(os.path.dirname(__file__), ruta)
-    if os.path.exists(ruta_completa):
-        try:
-            imagen = pygame.image.load(ruta_completa)
-            return pygame.transform.scale(imagen, (ancho, alto))
-        except pygame.error:
-            return None
-    return None
+    if not os.path.exists(ruta_completa):
+        return None
+    try:
+        img = pygame.image.load(ruta_completa)
+        if img.get_alpha() is not None:
+            img = img.convert_alpha()
+        else:
+            img = img.convert()
+        return pygame.transform.scale(img, (ancho, alto))
+    except pygame.error:
+        return None
 
 
 class MenuPrincipal:
@@ -33,14 +36,42 @@ class MenuPrincipal:
         self.fuente_opcion = None
         self.fondo = None
         self.estado_sonido = True
+        self.assets = None
+        self.gestor_cursores = None
 
-    def _inicializar(self):
+    def _inicializar(self, pantalla: pygame.Surface):
         if not pygame.get_init():
             pygame.init()
-        self.fuente_titulo = pygame.font.SysFont("consolas", 36)
-        self.fuente_opcion = pygame.font.SysFont("consolas", 24)
-        self.fondo = cargar_imagen("assets/images/fondo.png", ANCHO, ALTO)
-        # Estado inicial del sonido: si música está con volumen > 0
+        self.fuente_titulo = self.fuente_titulo or pygame.font.SysFont("consolas", 36)
+        self.fuente_opcion = self.fuente_opcion or pygame.font.SysFont("consolas", 24)
+        # Carga única de assets convertidos para reuso en el juego
+        if self.assets is None:
+            fondo = cargar_imagen("assets/images/fondo.png", ANCHO, ALTO)
+            manzana = cargar_imagen("assets/images/manzana.png", 20, 20)
+            notificacion = None
+            icono = None
+            ruta_notif = os.path.join(os.path.dirname(__file__), "assets", "images", "notificacion.png")
+            ruta_icono = os.path.join(os.path.dirname(__file__), "assets", "images", "iconito.png")
+            if os.path.exists(ruta_notif):
+                try:
+                    tmp = pygame.image.load(ruta_notif)
+                    notificacion = tmp.convert_alpha() if tmp.get_alpha() else tmp.convert()
+                except Exception:
+                    notificacion = None
+            if os.path.exists(ruta_icono):
+                try:
+                    tmp = pygame.image.load(ruta_icono)
+                    icono = tmp.convert_alpha() if tmp.get_alpha() else tmp.convert()
+                except Exception:
+                    icono = None
+            self.assets = {
+                "fondo": fondo,
+                "manzana": manzana,
+                "manzana_base": manzana.copy() if manzana else None,
+                "notificacion": notificacion,
+                "icono": icono,
+            }
+        self.fondo = self.assets.get("fondo") if self.assets else None
         try:
             self.estado_sonido = True
             pygame.mixer.music.set_volume(1.0)
@@ -56,7 +87,7 @@ class MenuPrincipal:
         titulo = self.fuente_titulo.render("Serpiente", True, (255, 255, 255))
         pantalla.blit(titulo, ((ANCHO - titulo.get_width()) // 2, 60))
 
-        # Render opciones
+        
         base_y = 140
         sep = 44
         for i, opt in enumerate(self.opciones):
@@ -72,33 +103,36 @@ class MenuPrincipal:
     def _toggle_sonido(self):
         self.estado_sonido = not self.estado_sonido
         if self.estado_sonido:
-            # Reanudar música y poner volumen estándar
+            
             self.gestor_audio.reanudar_musica()
             self.gestor_audio.set_volumen_musica(1.0)
             self.gestor_audio.set_volumen_efecto(1.0)
         else:
-            # Pausar música y silenciar efectos
+            
             self.gestor_audio.pausar_musica()
             self.gestor_audio.set_volumen_musica(0.0)
             self.gestor_audio.set_volumen_efecto(0.0)
 
     def mostrar(self) -> str:
-        self._inicializar()
+        if not pygame.get_init():
+            pygame.init()
         pantalla = pygame.display.set_mode((ANCHO, ALTO))
         pygame.display.set_caption("Menú - Serpiente")
-        # Inicializar gestor de cursores personalizados
-        gestor_cursores = GestorCursores()
-        gestor_cursores.establecer_cursor_menu()
-        # Establecer ícono de la ventana del menú
+        self._inicializar(pantalla)
+
+        if self.gestor_cursores is None:
+            self.gestor_cursores = GestorCursores()
+        self.gestor_cursores.establecer_cursor_menu()
         try:
-            ruta_icono = os.path.join(os.path.dirname(__file__), "assets", "images", "icono.png")
-            if os.path.exists(ruta_icono):
-                icono = pygame.image.load(ruta_icono)
-                pygame.display.set_icon(icono)
+            if self.assets and self.assets.get("icono"):
+                pygame.display.set_icon(self.assets["icono"])
             else:
-                print(f"  ✗ No encontrado: assets/images/icono.png")
-        except Exception as e:
-            print(f"  ✗ Error estableciendo icono: {e}")
+                ruta_icono = os.path.join(os.path.dirname(__file__), "assets", "images", "iconito.png")
+                if os.path.exists(ruta_icono):
+                    icono = pygame.image.load(ruta_icono)
+                    pygame.display.set_icon(icono)
+        except Exception:
+            pass
         reloj = pygame.time.Clock()
 
         while True:
@@ -132,7 +166,11 @@ def inicio_aplicacion():
     while True:
         accion = menu.mostrar()
         if accion == "nuevo":
-            resultado = principal()
+            resultado = principal(
+                gestor_audio=menu.gestor_audio,
+                gestor_cursores=menu.gestor_cursores,
+                assets=menu.assets,
+            )
             if resultado == "salir":
                 break
             continue
