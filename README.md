@@ -8,4 +8,3 @@ Snake en Python con Pygame.
 ## Controles
 - Flechas: mover
 - Esc (en juego): volver al menú
-- Menú: Música ON/OFF, Salir
