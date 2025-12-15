@@ -3,6 +3,7 @@ import os
 import pygame
 from audio import GestorAudio
 from ventana import principal
+from cursores import GestorCursores
 
 ANCHO, ALTO = 800, 400
 TAMANO_CELDA = 20
@@ -85,6 +86,9 @@ class MenuPrincipal:
         self._inicializar()
         pantalla = pygame.display.set_mode((ANCHO, ALTO))
         pygame.display.set_caption("Menú - Serpiente")
+        # Inicializar gestor de cursores personalizados
+        gestor_cursores = GestorCursores()
+        gestor_cursores.establecer_cursor_menu()
         # Establecer ícono de la ventana del menú
         try:
             ruta_icono = os.path.join(os.path.dirname(__file__), "assets", "images", "icono.png")
