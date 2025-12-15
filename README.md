@@ -1,5 +1,5 @@
-# Juego Serpiente 🐍🍎
-Snake en Python con Pygame.
+# Juego Serpiente 🐍🍎 (Python 🐍)
+Snake en Python 🐍 con Pygame.
 
 ## Requisitos
 - Python 3.10+
