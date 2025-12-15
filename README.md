@@ -225,10 +225,10 @@ Conjunto de cursores personalizados en formato PNG ubicados en `assets/cursores_
 El juego utiliza las siguientes constantes configurables (en `ventana.py`):
 
 ```python
-ANCHO, ALTO = 800, 400        # Dimensiones de la ventana
-TAMANO_CELDA = 20             # Tamaño de cada celda del grid
-COLUMNAS = 40                 # Número de columnas (ANCHO/TAMANO_CELDA)
-FILAS = 20                    # Número de filas (ALTO/TAMANO_CELDA)
+ANCHO, ALTO = 800, 400            # Dimensiones de la ventana
+TAMANO_CELDA = 20                 # Tamaño de cada celda del grid
+COLUMNAS = ANCHO // TAMANO_CELDA  # Número de columnas (calculado: 40)
+FILAS = ALTO // TAMANO_CELDA      # Número de filas (calculado: 20)
 COLOR_SERPIENTE = (0, 51, 102)    # Color de la serpiente (RGB)
 COLOR_MANZANA = (231, 76, 60)     # Color fallback de la manzana
 ```
