@@ -4,18 +4,18 @@ import pygame
 import math
 from serpiente import ARRIBA, ABAJO, IZQUIERDA, DERECHA
 from juego import Juego
+from audio import GestorAudio
 
 ANCHO, ALTO = 800, 400
 TAMANO_CELDA = 20
 COLUMNAS = ANCHO // TAMANO_CELDA
 FILAS = ALTO // TAMANO_CELDA
 FONDO = (20, 20, 20)
-COLOR_SERPIENTE = (46, 204, 113)
+COLOR_SERPIENTE = (92, 62, 59)
 COLOR_MANZANA = (231, 76, 60)
 
 
 def cargar_imagen(ruta: str, ancho: int, alto: int):
-    """Carga y escala una imagen desde assets/images/."""
     ruta_completa = os.path.join(os.path.dirname(__file__), ruta)
     if os.path.exists(ruta_completa):
         try:
@@ -41,24 +41,10 @@ def principal():
     imagen_manzana = cargar_imagen("assets/images/manzana.png", TAMANO_CELDA, TAMANO_CELDA)
     imagen_serpiente = cargar_imagen("assets/images/serpiente.png", TAMANO_CELDA, TAMANO_CELDA)
     imagen_fondo = cargar_imagen("assets/images/fondo.png", ANCHO, ALTO)
-
-    
     imagen_manzana_base = imagen_manzana.copy() if imagen_manzana else None
-    # Inicializar audio y cargar efecto de comer (assets/audio/audio1.wav)
-    sonido_comer = None
-    try:
-        pygame.mixer.init()
-        ruta_audio = os.path.join(os.path.dirname(__file__), "assets", "audio", "audio1.wav")
-        if os.path.exists(ruta_audio):
-            try:
-                sonido_comer = pygame.mixer.Sound(ruta_audio)
-                print(f"  ✓ Sonido cargado: {ruta_audio}")
-            except pygame.error as e:
-                print(f"  ✗ Error cargando sonido: {e}")
-        else:
-            print(f"  ✗ No encontrado: {ruta_audio}")
-    except Exception as e:
-        print(f"  ✗ No se pudo inicializar el mezclador de audio: {e}")
+    
+    # Inicializar gestor de audio (carga automáticamente todos los audios)
+    gestor_audio = GestorAudio()
 
     while True:
         for evento in pygame.event.get():
@@ -79,13 +65,9 @@ def principal():
                     juego.establecer_direccion(DERECHA)
 
         estado = juego.paso()
-        # Reproducir sonido de comer si corresponde
+        # Reproducir sonido de comer
         if estado.get('crecio'):
-            if sonido_comer:
-                try:
-                    sonido_comer.play()
-                except Exception as e:
-                    print(f"  ✗ Error reproduciendo sonido: {e}")
+            gestor_audio.reproducir_efecto('comer')
         
         # === FASE 1: Dibujar fondo ===
         if imagen_fondo:

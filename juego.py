@@ -40,7 +40,7 @@ class Juego:
             self.reiniciar()
             return {"reinicio": True, "crecio": False, "puntaje": self.puntaje}
 
-        # Comer manzana
+        # Come manzana
         crece = siguiente == self.manzana
 
         # Colisión con el cuerpo: considerar si crece o no

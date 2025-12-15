@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-# Direcciones como vectores (dx, dy)
+# Direcciones
 ARRIBA: Tuple[int, int] = (0, -1)
 ABAJO: Tuple[int, int] = (0, 1)
 IZQUIERDA: Tuple[int, int] = (-1, 0)
@@ -16,7 +16,7 @@ class Serpiente:
 		return self.cuerpo[0]
 
 	def establecer_direccion(self, nueva: Tuple[int, int]) -> None:
-		# Evitar girar 180° inmediatamente
+		# Evita girar 180° inmediatamente
 		opuesta = (-self.direccion[0], -self.direccion[1])
 		if nueva != opuesta:
 			self.direccion = nueva
